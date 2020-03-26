@@ -52,19 +52,19 @@ def get_node(path = "/service/api/xiushang/node",**kargs):
 def get_edge(path = "/service/api/xiushang/edge",**kargs):
     return _request_single(path=path, params=kargs)
 
-def get_ngram_related(node):
+def get_ngram_related(node, total_limit:int = 200):
     limit = 50
     offset = 0
     ngrams = []
-    output = get_ngram_related(source = node,offset = offset, limit = limit)
-    while (len(output)!=0):
+    output = get_ngram(source = node,offset = offset, limit = limit)
+    while output is not None and (len(output)!=0) and offset+limit <= total_limit:
         ngrams += output
         offset += limit
-        output =  get_ngram_related(source = node,offset = offset,limit = limit)
+        output =  get_ngram(source = node,offset = offset,limit = limit)
     offset = 0
-    output = get_ngram_related(target=node, offset=offset, limit=limit)
-    while (len(output)!=0):
+    output = get_ngram(target=node, offset=offset, limit=limit)
+    while output is not None and (len(output)!=0) and offset+limit <= total_limit:
         ngrams += output
         offset += limit
-        output = get_ngram_related(source=node, offset=offset, limit=limit)
+        output = get_ngram(source=node, offset=offset, limit=limit)
     return ngrams
