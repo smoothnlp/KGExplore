@@ -36,36 +36,37 @@ def label_modification(label):
         return label[:length // 3] + "\n" + label[length // 3:2 * length // 3] + "\n" + label[2 * length // 3:]
 
     
+def to_marker_edge(marker_size, marker):
+    """
+    get edge shrink_target
+    :param marker_size: int 
+    :param marker: default 'o'
+    :return: float
+    """
+    if marker in "s^>v<d":  # `large` markers need extra space
+        return pow(2*marker_size,0.49)/2
+    else:
+        return pow(marker_size,0.49)/2
+    
+    
 def rel2graph(rels:list):
     """
     依据多条知识图谱N元组构建Networkx类型的有向图
     :param rels:
-    :return: nx.DiGraph
+    :return: nx.MultiGraph
     """
-    g = nx.DiGraph()
+    G = nx.MultiGraph()
     rels.sort(key=lambda x:x['edge_type'],reverse=True)  
-
     for rel in rels:
         rel['source'] = norm(rel['source'])
         rel['target'] = norm(rel['target'])
-        g.add_node(rel['source'],type=rel['source_type'])
-        g.add_node(rel['target'],type=rel['target_type'])
-        if (rel['source'],rel['target']) in g.edges():  ## 相同scource,target，保留一条边，attr叠加
-            if rel['edge_type'] in g.edges[(rel['source'],rel['target'])]['label'] and rel['edge'] not in g.edges[(rel['source'],rel['target'])]['label']:
-                g.edges[(rel['source'],rel['target'])]['label']+=(','+rel['edge'])
-            elif rel['edge_type'] not in g.edges[(rel['source'],rel['target'])]['label']and rel['edge'] not in g.edges[(rel['source'],rel['target'])]['label']:
-                g.edges[(rel['source'],rel['target'])]['label']+=('\n'+rel['edge'])
-        elif (rel['target'],rel['source']) in g.edges():
-            if rel['edge_type'] in g.edges[(rel['target'],rel['source'])]['label'] and rel['edge'] not in g.edges[(rel['target'],rel['source'])]['label']:
-                g.edges[(rel['target'],rel['source'])]['label']+=(','+rel['edge'])
-            elif rel['edge_type'] not in g.edges[(rel['target'],rel['source'])]['label']and rel['edge'] not in g.edges[(rel['target'],rel['source'])]['label']:
-                g.edges[(rel['target'],rel['source'])]['label']+=('\n'+rel['edge'])        
-        else:
-            g.add_edge(rel['source'],rel['target'], label=rel['edge'], type=rel['edge_type'])
-    return g
+        G.add_node(rel['source'],type=rel['source_type'])
+        G.add_node(rel['target'],type=rel['target_type'])
+        G.add_edges_from([(rel['source'],rel['target'],{'label':rel['edge'], 'type':rel['edge_type']})])
+    return G
 
 
-def graph_visual(gram,x:int=12,y:int=12):
+def graph_visual(gram,x:int=16,y:int=16):
     """
     用matplotlib对有向图进行可视化
     :param g: nx.DiGraph
@@ -73,49 +74,97 @@ def graph_visual(gram,x:int=12,y:int=12):
     :param y: 像素
     :return:
     """
-    g = rel2graph(gram)
-    if len(g)<=0: ## 处理空的Graph
+    G = rel2graph(gram)
+    if len(G)<=0: ## 处理空的Graph
         return
-    if len(g)>40:
+    if len(G)>40:
         raise Exception('The input digraph is too large')
     
-    g_edges = list(g.edges())
-    if len(set([x[0] for x in g_edges]))==1 or len(set([x[1] for x in g_edges]))==1:  ## centre node发出的边单向
-        pos = nx.drawing.layout.kamada_kawai_layout(g)
-    else:                                                                             ## centre_node同时有入边和出边
-        source_nodes,target_nodes = zip(*g_edges)
-        centre_node = Counter(source_nodes).most_common(1)[0][0]
-        centre_node = norm(centre_node)
-        source_nodes = list(set(source_nodes)-set([centre_node]))
-        target_nodes = list(set(target_nodes)-set(source_nodes)-set([centre_node]))
-        alpha, beta = (math.pi*0.9)/len(source_nodes), (math.pi*0.9)/len(target_nodes)
-        r = 1.0
-        pos_arrs = [np.array([r*math.cos(math.pi*0.55+alpha*i),-r*math.sin(math.pi*0.55+alpha*i)]) for i in range(len(source_nodes))]
-        pos_arrs += [np.array([r*math.cos(math.pi*1.55+beta*i),-r*math.sin(math.pi*1.55+beta*i)]) for i in range(len(target_nodes))]
-        pos={**dict(zip(source_nodes+target_nodes,pos_arrs)), **{centre_node:np.array([0,0])}}
+    pos = nx.drawing.kamada_kawai_layout(G)
+
+    nodelist = list(G.nodes())
+    node_labels = {k: label_modification(k) for k in G.nodes}
+    node_size = [min(len(n), 5) * 1500 for n in G.nodes]
+
+    edgelist = list(G.edges)
+    target_count = Counter([x[1] for x in G.edges()])
+    edge_labels = nx.get_edge_attributes(G, "label")
+    edge_types = nx.get_edge_attributes(G,'type')
     
     ## 控制fig大小
-    if len(g_edges)>24:
-        x,y = len(g_edges)*0.5,len(g_edges)*0.5
-    fig = plt.figure(figsize = (x,y),dpi=100)
-    plt.title('股权业务关系图', fontdict={"fontsize": 14})
+    if len(nodelist)>32:
+        x,y = len(edgelist)*0.5,len(edgelist)*0.5
+    fig = plt.figure(figsize = (x,y),dpi=80)
+    nx.draw_networkx_nodes(G, pos, 
+                       node_color = [pattern_dic[t] for t in nx.get_node_attributes(G, "type").values()], 
+                       node_size =[min(len(n), 5) * 1300 for n in G.nodes],
+                       alpha = 1)
+    nx.draw_networkx_labels(G,pos,
+                            labels=node_labels,
+                            font_color="darkslategrey",font_size=12,font_family="SimHei")
 
-    node_labels = {k: label_modification(k) for k in g.nodes}
-    nx.draw(g, pos, labels=node_labels,
-            with_labels=True,
-            node_color=[pattern_dic[t] for t in nx.get_node_attributes(g, "type").values()],
-            edge_color=[pattern_dic[t] for t in nx.get_edge_attributes(g, "type").values()],
-            node_size=[min(len(n), 5) * 1300 for n in g.nodes],
-            alpha=1.0,
-            font_color="darkslategrey",
-            font_size=12,
-            width=3.0,
-            font_family="SimHei")
-    nx.draw_networkx_edge_labels(g,
-                                 pos,
-                                 edge_labels=nx.get_edge_attributes(g, "label"),
-                                 font_color='black',
-                                 font_size=12,
-                                 width=0.6,
-                                 font_family="SimHei")
-    return fig
+
+
+    ax = plt.gca()
+    for (n1, n2, n3), label in edge_labels.items():
+        # middle control point of quadratic Bezier curve is located at the same distance
+        # from the start point C0(x1, y1) and end point C2(x2, y2) and the distance of
+        # the C1 to the line connecting C0-C2 is *rad* times the distance of C0-C2.
+        (x1, y1) = pos[n1]  # C0
+        (x2, y2) = pos[n2]  # C2
+        rad = 0.4/target_count[n2]*math.ceil(n3/2)*(-1)**(n3%2) 
+        x12, y12 = (x1+x2)/2., (y1+y2)/2.
+        dx, dy = x2-x1, y2-y1
+        x, y = x12+rad*dy/2, y12-rad*dx/2  # pos of edge label
+
+        # space from edge head to target
+        target_node_size = node_size[nodelist.index(n1)]
+        shrink_target = to_marker_edge(target_node_size, 'o') 
+
+        # edge
+        arrow = ax.annotate("",
+                    xy=(x1, y1), xycoords='data',
+                    xytext=(x2, y2), textcoords='data',
+                    arrowprops=dict(arrowstyle="->", 
+                                color=pattern_dic[edge_types[(n1,n2,n3)]],
+                                shrinkB=shrink_target, 
+                                linewidth=2.5,
+                                connectionstyle="arc3,rad={}".format(str(-rad)) 
+                                    )
+                    )
+        arrow.set_zorder(0)  ##先画edge，再画node
+
+        # make label orientation "right-side-up"
+        angle = np.arctan2(y2-y1, x2-x1)/(2.0*np.pi)*360
+        if angle > 90:
+            angle -= 180
+        if angle < - 90:
+            angle += 180
+        xy = np.array((x, y))
+        trans_angle = ax.transData.transform_angles(np.array((angle,)),xy.reshape((1, 2)))[0]
+        bbox = dict(boxstyle="round", fc="w", ec='0.9', alpha=0.9)  # text box
+        if not isinstance(label, str):
+            label = str(label)  # this makes "1" and 1 labeled the same
+
+        # edge label
+        t = ax.text(x, y,
+                    label,
+                    size=14,
+                    color='black',
+                    family='SimHei',
+                    weight='normal',
+                    horizontalalignment='center',
+                    verticalalignment='center',
+                    rotation=trans_angle,
+                    transform=ax.transData,
+                    bbox=bbox)
+    plt.show()
+    return 
+
+
+################################################################################################
+#TODO:
+#1.同edge去重，如“商标”重复太多，展示效果不好；
+#2.部分情况下， G.add_edges_from()第一次调用时，将source、target倒转，未发现明显的错误规律，
+#   展示图暂时用G.remove_node(list(G.edges())[0][0])处理过
+################################################################################################
