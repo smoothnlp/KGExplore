@@ -16,18 +16,25 @@ python setup.py develop  ## 安装开发模式
 ```python
 from xiushang import client,config
 config.setApiKey(api_key)
-print(client.get_ngram(target="董明珠",limit=30))
-print(client.get_ngram_related(node="行吟信息科技（上海）有限公司"))
+gram = client.get_ngram(target="董明珠",limit=30)
+gram = client.get_ngram_related(node="行吟信息科技（上海）有限公司")
 ```
 
 ### 可视化
 
 ```python
 from xiushang import visual
-gram = client.get_ngram(target="董明珠", limit=30)
 fig = graph_visual(gram)
 ```
-![xiushang_demo.png](demo/xiushang_demo.png)
+* 股权关系
+![xiushang_demo.png](demo/comp_comp.png)
+
+* 任职关系
+![xiushang_demo.png](demo/comp_person.png)
+
+* 商标所有权
+![xiushang_demo.png](demo/comp_brand.png)
+
 
 
 ### 功能文档
