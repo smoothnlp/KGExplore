@@ -68,3 +68,9 @@ def get_ngram_related(node, total_limit:int = 200):
         offset += limit
         output = get_ngram(source=node, offset=offset, limit=limit)
     return ngrams
+
+def search_bigram(text,  ## 长度不超过80
+                  limit:int = 6,
+                  path:str = "/pro/ngram/searchNgram"):
+    return _request_single(path = path, params = {"text":text,
+                                                  "limit":limit})
