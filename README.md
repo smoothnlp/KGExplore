@@ -25,7 +25,8 @@ gram = client.search_bigram(text="董明珠",limit=10)
 
 ```python
 from xiushang import visual
-fig = visual.graph_visual(gram)
+fig = visual.graph_visual(rels)  ## 单一节点相关的graph可视化
+fig = visual.composedgraph_visual([rels1,rels2])  ## 多节点相关的graph组合可视化
 ```
 * 股权关系
 ![xiushang_demo.png](https://github.com/smoothnlp/xiushang/blob/master/demo/comp_comp.png)
@@ -37,7 +38,8 @@ fig = visual.graph_visual(gram)
 ![xiushang_demo.png](https://github.com/smoothnlp/xiushang/blob/master/demo/comp_brand.png)
 
 * 全领域的知识图谱
-![](https://github.com/smoothnlp/xiushang/blob/master/demo/kg.png)
+![](https://github.com/smoothnlp/xiushang/blob/master/demo/TFBOYS.png)
+![](https://github.com/smoothnlp/xiushang/blob/master/demo/郭广昌.png)
 
 
 
@@ -71,12 +73,17 @@ client.search_bigram(text="董明珠")
     """
 >> {'response': [{'source': '董明珠', 'source_id': '529d0a7654ae77433bcd8321ffa3f9d9', 'edge': '状态描述', 'target': '实际控制人', 'target_id': '393bfaedcab20995462dc720ec5958ba', 'edge_type': '状态描述', 'evident_sentence': '董明珠是实际控制人，但不是第一大股东，股权与经营权的不对应肯定会影响企业未来上市。', 'evident_url': 'https://www.huxiu.com/article/274716.html', 'ngram_id': '18e66f9f57fbbc374387b2b96e7c2a6b', 'source_flag': 'entity', 'target_flag': 'entity'},..., {'source': '董明珠', 'source_id': '126924dd44f071f48f937f5d2e558bb8', 'edge': '还加强', 'target': '对银隆业务运营的管控', 'target_id': '7eeb21114830f2feb79a53fbdaa4eefa', 'edge_type': '事件触发', 'evident_sentence': '除了增持股份，董明珠还加强对银隆业务运营的管控。', 'evident_url': 'https://36kr.com/p/5148260', 'ngram_id': '442e01bd3af23b6a8a0738e6d88c2111', 'source_flag': 'entity', 'target_flag': 'phrase'}], 'request_id': 'e283d124-4b6a-4f14-b0e4-be53ba4aad5e'}
 
-visual.graph_visual(gram,x,y)
+visual.graph_visual(rels,width:int=16,height:int=16,save_path=None)
     """
-    :param 
-        gram: 知识图谱2元组
-        x: 像素
-        y: 像素
-    :return figure
+    :param rels: list or dict
+    :param width, height: 窗口尺寸
+    :return:
+    """
+ 
+visual.composedgraph_visual(rels,width:int=16,height:int=16,save_path=None)
+    """
+    :param rels: list of list/ list of dict
+    :param width, height: 窗口尺寸
+    :return:
     """
 ```
