@@ -23,11 +23,24 @@ gram = client.search_bigram(text="董明珠",limit=10)
 
 ### 可视化
 
+#### 单一节点相关的graph可视化
+
 ```python
-from xiushang import visual
-fig = visual.graph_visual(rels)  ## 单一节点相关的graph可视化
-fig = visual.composedgraph_visual([rels1,rels2])  ## 多节点相关的graph组合可视化
+from xiushang import client,config,visual
+config.setApiKey(api_key)
+rels = client.get_ngram(target="董明珠",limit=30)
+fig = visual.graph_visual(rels,save_path="demo/comp_person.png")  
 ```
+
+#### 多节点相关的graph组合可视化
+```python
+from xiushang import client,config,visual
+config.setApiKey(api_key)
+rels1 = client.search_bigram(text="格力",limit=10)
+rels2 = client.search_bigram(text="空调",limit=10)
+fig = visual.composedgraph_visual([rels1,rels2],save_path="demo/格力")
+```
+
 * 股权关系
 ![xiushang_demo.png](https://github.com/smoothnlp/xiushang/blob/master/demo/comp_comp.png)
 
@@ -38,9 +51,9 @@ fig = visual.composedgraph_visual([rels1,rels2])  ## 多节点相关的graph组�
 ![xiushang_demo.png](https://github.com/smoothnlp/xiushang/blob/master/demo/comp_brand.png)
 
 * 全领域的知识图谱
-![](https://github.com/smoothnlp/xiushang/blob/master/demo/TFBOYS.png)
-![](https://github.com/smoothnlp/xiushang/blob/master/demo/郭广昌.png)
-
+![](https://github.com/smoothnlp/xiushang/blob/master/demo/格力.png)
+![](https://github.com/smoothnlp/xiushang/blob/master/demo/B2B.png)
+![](https://github.com/smoothnlp/xiushang/blob/master/demo/咖啡.png)
 
 
 ### 功能文档
