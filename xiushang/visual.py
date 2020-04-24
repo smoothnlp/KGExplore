@@ -109,12 +109,14 @@ def draw_graph(G,edges_dic,width,height,save_path=None):
     nodesize = {k:min(len(k), 5) * 1500 for k in G.nodes}
     
     ## 控制fig大小
-    if len(node_labels)>36:
+    if len(node_labels)>28:
         width, height = len(node_labels)*0.5,len(node_labels)*0.5
-    fig = plt.figure(figsize = (width, height),dpi=80)
+    fig = plt.figure(figsize = (width, height),dpi=60)
     ## 添加水印
     wm_img = plt.imread(pkg_resources.resource_filename('xiushang', 'resources/')+'watermark.png')
     fig.figimage(wm_img,alpha=0.15)
+    ## 获得绘制的句柄
+    ax = fig.add_axes([0.03, 0.03, 0.94, 0.94]) ## axes的左下角在fig的图像坐标上的位置 + axes在fig的图像坐标上x、y方向的长度
     ## draw nodes
     nx.draw_networkx_nodes(G, pos, 
                        node_color=[pattern_dic[t] for t in nx.get_node_attributes(G, "type").values()], 
@@ -124,7 +126,7 @@ def draw_graph(G,edges_dic,width,height,save_path=None):
                             labels=node_labels,
                             font_color="darkslategrey",font_size=12,font_family="SimHei")
 
-    ax = plt.gca()
+    ax = plt.gca() ## get current axes
     for k,v_lst in edges_dic.items():
 #         if set([v[3] for v in v_lst])==set(['注册商标']):  ## edge内容为“注册商标”时去重
 #             v_lst = v_lst[:1]
@@ -159,12 +161,12 @@ def draw_graph(G,edges_dic,width,height,save_path=None):
     for key, spine in ax.spines.items():  ## 删除边框
         spine.set_visible(False)
     if save_path:
-        plt.savefig(save_path)
+        plt.savefig(save_path,dpi=fig.dpi)
     plt.show()
     return 
 
    
-def graph_visual(rels,width:int=18,height:int=18,save_path=None):
+def graph_visual(rels,width:int=14,height:int=14,save_path=None):
     """
     :param rels: list or dict
     :param width, height: 窗口尺寸
@@ -186,7 +188,7 @@ def graph_visual(rels,width:int=18,height:int=18,save_path=None):
     return 
    
    
-def composedgraph_visual(rels,width:int=18,height:int=18,save_path=None):
+def composedgraph_visual(rels,width:int=14,height:int=14,save_path=None):
     """
     :param rels: list of list/ list of dict
     :param width, height: 窗口尺寸
