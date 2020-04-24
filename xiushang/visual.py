@@ -1,6 +1,7 @@
 import networkx as nx
 import math
 import numpy as np
+import pkg_resources
 import unicodedata
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as font_manager
@@ -108,9 +109,12 @@ def draw_graph(G,edges_dic,width,height,save_path=None):
     nodesize = {k:min(len(k), 5) * 1500 for k in G.nodes}
     
     ## 控制fig大小
-    if len(node_labels)>32:
+    if len(node_labels)>36:
         width, height = len(node_labels)*0.5,len(node_labels)*0.5
     fig = plt.figure(figsize = (width, height),dpi=80)
+    ## 添加水印
+    wm_img = plt.imread(pkg_resources.resource_filename('xiushang', 'resources/')+'watermark.png')
+    fig.figimage(wm_img,alpha=0.15)
     ## draw nodes
     nx.draw_networkx_nodes(G, pos, 
                        node_color=[pattern_dic[t] for t in nx.get_node_attributes(G, "type").values()], 
@@ -122,6 +126,8 @@ def draw_graph(G,edges_dic,width,height,save_path=None):
 
     ax = plt.gca()
     for k,v_lst in edges_dic.items():
+#         if set([v[3] for v in v_lst])==set(['注册商标']):  ## edge内容为“注册商标”时去重
+#             v_lst = v_lst[:1]
         num_edge = len(v_lst)
         for v in v_lst:
             # middle control point of quadratic Bezier curve is located at the same distance
@@ -150,13 +156,15 @@ def draw_graph(G,edges_dic,width,height,save_path=None):
                         horizontalalignment='center',verticalalignment='center',
                         rotation=trans_angle,transform=ax.transData,
                         bbox=dict(boxstyle="round", fc="w", ec='0.9', alpha=0.9))
+    for key, spine in ax.spines.items():  ## 删除边框
+        spine.set_visible(False)
     if save_path:
         plt.savefig(save_path)
     plt.show()
     return 
 
    
-def graph_visual(rels,width:int=16,height:int=16,save_path=None):
+def graph_visual(rels,width:int=18,height:int=18,save_path=None):
     """
     :param rels: list or dict
     :param width, height: 窗口尺寸
@@ -167,10 +175,9 @@ def graph_visual(rels,width:int=16,height:int=16,save_path=None):
         for dic in rels:
             dic["source_type"] = dic.pop("source_flag")
             dic["target_type"] = dic.pop("target_flag")
-    elif type(rels)==list:
-        G, edges_dic = rel2graph(rels)
-    else:
-        raise ValueError("Invalid input type of {}").format(type(rels))
+    elif type(rels)!=list:
+        raise ValueError("Invalid input type of "+str(type(rels)))
+    G, edges_dic = rel2graph(rels)
     if len(G)<=0:             ## 处理空的Graph
         return
     if len(G)>40:
@@ -179,7 +186,7 @@ def graph_visual(rels,width:int=16,height:int=16,save_path=None):
     return 
    
    
-def composedgraph_visual(rels,width:int=16,height:int=16,save_path=None):
+def composedgraph_visual(rels,width:int=18,height:int=18,save_path=None):
     """
     :param rels: list of list/ list of dict
     :param width, height: 窗口尺寸
@@ -193,7 +200,7 @@ def composedgraph_visual(rels,width:int=16,height:int=16,save_path=None):
                 dic["source_type"] = dic.pop("source_flag")
                 dic["target_type"] = dic.pop("target_flag")
         elif type(rel)!=list:
-            raise ValueError("Invalid input type of {}").format(type(rel))
+            raise ValueError("Invalid input type of "+str(type(rels)))
         g, edges_dic1 = rel2graph(rel)
         graphs.append(g)
         edges_dic.update(edges_dic1)
