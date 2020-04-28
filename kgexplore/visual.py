@@ -195,11 +195,12 @@ def graph_visual(rels,
     if not isinstance(rels,list):
         raise ValueError("Invalid input type of "+str(type(rels)))
 
+    ## This logic will deprecate
     for rel in rels:
         if "source_type" not in rel:
-            rel["source_type"] = rels.pop("source_flag")
+            rel["source_type"] = rel.pop("source_flag")
         if "target_type" not in rel:
-            rel['target_type'] = rels.pop("target_flag")
+            rel['target_type'] = rel.pop("target_flag")
 
     G, edges_dic = rel2graph(rels)
     if len(G)<=0:             ## 处理空的Graph
