@@ -198,7 +198,7 @@ def visualize(rels,
             rel['target_type'] = rel.pop("target_flag")
 
     ## 过滤 source 与 target 相同的情况
-    rels = map(lambda rel: rel['target']!=rel['source'], rels)
+    rels = list(map(lambda rel: rel['target']!=rel['source'], rels))
 
     G, edges_dic = rel2graph(rels)
     if len(G)<=0:             ## 处理空的Graph
