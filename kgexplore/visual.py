@@ -24,7 +24,7 @@ pattern_dic = {'企业':'powderblue','机构':'powderblue','投资方':'powderbl
                'entity':'powderblue', 'phrase':'powderblue',                               ## search_bigram-node
                '事件触发':'steelblue', '状态描述':'darksalmon', '属性描述':'mediumseagreen'} ## search_bigram-edge
 
-norm = lambda x: unicodedata.normalize('NFKC', x)  ## 中文标点转英文标点，全角字符转半角字符
+normalize = lambda x: unicodedata.normalize('NFKC', x)  ## 中文标点转英文标点，全角字符转半角字符
 
 def label_modification(label):
     """
@@ -85,8 +85,8 @@ def rel2graph(rels:list):
     edges_dic = {}
     rels.sort(key=lambda x:x['edge_type'],reverse=True)  
     for rel in rels:
-        rel['source'] = norm(rel['source'])
-        rel['target'] = norm(rel['target'])
+        rel['source'] = normalize(rel['source'])
+        rel['target'] = normalize(rel['target'])
         G.add_node(rel['source'],type=rel['source_type'])
         G.add_node(rel['target'],type=rel['target_type'])
         G.add_edges_from([(rel['source'],rel['target'],{'label':rel['edge'], 'type':rel['edge_type']})])
@@ -178,7 +178,7 @@ def draw_graph(G,
     return 
 
    
-def graph_visual(rels,
+def visualize(rels,
                  width:int=14,
                  height:int=14,
                  **kargs):
@@ -187,11 +187,6 @@ def graph_visual(rels,
     :param width, height: 窗口尺寸
     :return:
     """
-    # if type(rels)==dict:      ## rels=client.search_bigram()
-    #     rels = rels['response']
-    #     for dic in rels:
-    #         dic["source_type"] = dic.pop("source_flag")
-    #         dic["target_type"] = dic.pop("target_flag")
     if not isinstance(rels,list):
         raise ValueError("Invalid input type of "+str(type(rels)))
 
