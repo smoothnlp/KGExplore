@@ -187,13 +187,20 @@ def graph_visual(rels,
     :param width, height: 窗口尺寸
     :return:
     """
-    if type(rels)==dict:      ## rels=client.search_bigram()
-        rels = rels['response']
-        for dic in rels:
-            dic["source_type"] = dic.pop("source_flag")
-            dic["target_type"] = dic.pop("target_flag")
-    elif type(rels)!=list:
+    # if type(rels)==dict:      ## rels=client.search_bigram()
+    #     rels = rels['response']
+    #     for dic in rels:
+    #         dic["source_type"] = dic.pop("source_flag")
+    #         dic["target_type"] = dic.pop("target_flag")
+    if not isinstance(rels,list):
         raise ValueError("Invalid input type of "+str(type(rels)))
+
+    for rel in rels:
+        if "source_type" not in rel:
+            rel["source_type"] = rels.pop("source_flag")
+        if "target_type" not in rel:
+            rel['target_type'] = rels.pop("target_flag")
+
     G, edges_dic = rel2graph(rels)
     if len(G)<=0:             ## 处理空的Graph
         return
