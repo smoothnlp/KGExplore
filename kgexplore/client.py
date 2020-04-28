@@ -32,8 +32,9 @@ def _request_single(path, counter=0, params:dict = {}):
     else:
         raise Exception(r.text)
 
-def get_ngram(path = "/service/api/xiushang/ngram",**kargs):
+def get_xiushang_ngram(path = "/service/api/xiushang/ngram",**kargs):
     """
+    嗅商接口; 返回商业知识图谱N元组.
     :param path:
     :param kargs:
         source: 出发节点
@@ -46,31 +47,37 @@ def get_ngram(path = "/service/api/xiushang/ngram",**kargs):
     """
     return _request_single(path=path,params=kargs)
 
-def get_node(path = "/service/api/xiushang/node",**kargs):
+def get_xiushang_node(path = "/service/api/xiushang/node",**kargs):
     return _request_single(path=path, params=kargs)
 
-def get_edge(path = "/service/api/xiushang/edge",**kargs):
+def get_xiushang_edge(path = "/service/api/xiushang/edge",**kargs):
     return _request_single(path=path, params=kargs)
 
-def get_ngram_related(node, total_limit:int = 200):
+def get_xiushang_ngram_related(node, total_limit:int = 200):
     limit = 50
     offset = 0
     ngrams = []
-    output = get_ngram(source = node,offset = offset, limit = limit)
+    output = get_xiushang_ngram(source = node,offset = offset, limit = limit)
     while output is not None and (len(output)!=0) and offset+limit <= total_limit:
         ngrams += output
         offset += limit
-        output =  get_ngram(source = node,offset = offset,limit = limit)
+        output =  get_xiushang_ngram(source = node,offset = offset,limit = limit)
     offset = 0
-    output = get_ngram(target=node, offset=offset, limit=limit)
+    output = get_xiushang_ngram(target=node, offset=offset, limit=limit)
     while output is not None and (len(output)!=0) and offset+limit <= total_limit:
         ngrams += output
         offset += limit
-        output = get_ngram(source=node, offset=offset, limit=limit)
+        output = get_xiushang_ngram(source=node, offset=offset, limit=limit)
     return ngrams
 
 def search_bigram(text,  ## 长度不超过80
                   limit:int = 6,
                   path:str = "/pro/ngram/searchNgram"):
-    return _request_single(path = path, params = {"text":text,
+    response =  _request_single(path = path,
+                           params = {"text":text,
                                                   "limit":limit})
+    if isinstance(response,dict) and "response" in response:
+        return response["response"]
+    else:
+        raise ValueError("Search for Bigram Failed")
+
