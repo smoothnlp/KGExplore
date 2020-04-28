@@ -5,14 +5,14 @@ rootdir = os.path.abspath(os.path.dirname(__file__))
 long_description = open(os.path.join(rootdir, 'README.md')).read()
 
 setuptools.setup(
-    name="xiushang",
+    name="kgexplore",
     version="0.1.0",
-    author="SmoothNLP Oraganization",
+    author="SmoothNLP Organization",
     author_email="contact@smoothnlp.com",
-    description="Python Package for Xiushang",
+    description="Python Package for Knowledge Exploration",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/smoothnlp/SmoothNLP",
+    url="https://github.com/smoothnlp/kgexplore",
     packages=setuptools.find_packages(),
     install_requires=[
         'request',
@@ -23,5 +23,5 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    test_suite = "smoothnlp.unittest.testall",
+    # test_suite = "kgexplore.unittest.testall",
 )

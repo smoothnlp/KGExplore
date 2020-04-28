@@ -26,7 +26,6 @@ pattern_dic = {'企业':'powderblue','机构':'powderblue','投资方':'powderbl
 
 norm = lambda x: unicodedata.normalize('NFKC', x)  ## 中文标点转英文标点，全角字符转半角字符
 
-
 def label_modification(label):
     length = len(label)
     if 0 < length <= 6:
@@ -113,7 +112,7 @@ def draw_graph(G,edges_dic,width,height,save_path=None):
         width, height = len(node_labels)*0.5,len(node_labels)*0.5
     fig = plt.figure(figsize = (width, height),dpi=60)
     ## 添加水印
-    wm_img = plt.imread(pkg_resources.resource_filename('xiushang', 'resources/')+'watermark.png')
+    wm_img = plt.imread(pkg_resources.resource_filename('kgexplore', 'resources/')+'watermark.png')
     fig.figimage(wm_img,alpha=0.15)
     ## 获得绘制的句柄
     ax = fig.add_axes([0.03, 0.03, 0.94, 0.94]) ## axes的左下角在fig的图像坐标上的位置 + axes在fig的图像坐标上x、y方向的长度

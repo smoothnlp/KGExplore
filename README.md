@@ -14,7 +14,7 @@ python setup.py develop  ## 安装开发模式
 ### 调用示例
 
 ```python
-from xiushang import client,config
+from kgexplore import client,config
 config.setApiKey(api_key)
 gram = client.get_ngram(target="董明珠",limit=30)
 gram = client.get_ngram_related(node="行吟信息科技（上海）有限公司")
@@ -26,7 +26,7 @@ gram = client.search_bigram(text="董明珠",limit=10)
 #### 单一节点相关的graph可视化
 
 ```python
-from xiushang import client,config,visual
+from kgexplore import client,config,visual
 config.setApiKey(api_key)
 rels = client.get_ngram(target="董明珠",limit=30)
 fig = visual.graph_visual(rels,save_path="demo/comp_person.png")  
@@ -34,7 +34,7 @@ fig = visual.graph_visual(rels,save_path="demo/comp_person.png")
 
 #### 多节点相关的graph组合可视化
 ```python
-from xiushang import client,config,visual
+from kgexplore import client,config,visual
 config.setApiKey(api_key)
 rels1 = client.search_bigram(text="格力",limit=10)
 rels2 = client.search_bigram(text="空调",limit=10)
