@@ -53,7 +53,7 @@ def get_xiushang_node(path = "/service/api/xiushang/node",**kargs):
 def get_xiushang_edge(path = "/service/api/xiushang/edge",**kargs):
     return _request_single(path=path, params=kargs)
 
-def get_xiushang_ngram_related(node, total_limit:int = 200):
+def get_xiushang_ngram_related(node, total_limit:int = 10):
     limit = 50
     offset = 0
     ngrams = []
@@ -75,7 +75,7 @@ def search_bigram(text,  ## 长度不超过80
                   path:str = "/pro/ngram/searchNgram"):
     response =  _request_single(path = path,
                            params = {"text":text,
-                                                  "limit":limit})
+                                     "limit":limit})
     if isinstance(response,dict) and "response" in response:
         return response["response"]
     else:
