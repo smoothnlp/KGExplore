@@ -1,5 +1,6 @@
 # Knowledge Explore
-> 知识探索
+> - KGExplore: 通用领域知识图谱
+> - 嗅商: 商业知识图谱
 
 
 ## 安装
