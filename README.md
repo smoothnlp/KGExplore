@@ -1,5 +1,5 @@
-# xiushang
->嗅商 - 商业知识图谱
+# Knowledge Explore
+> 知识探索
 
 
 ## 安装
