@@ -42,6 +42,7 @@ kge.visualize(rels)
 ![](https://github.com/smoothnlp/kgexplore/blob/master/demo/嗅商-格力-董明珠.png)
 
 ### 请我们喝咖啡
+ - 如果你是科研人员: **Free** 
  - 请算法工程师喝咖啡(28元): 1万次调用
  - 请整个团队喝咖啡(128元): 10万次调用
  - 有意包养我们(我们在找融资): 心诚即可,请电邮contact@smoothnlp.com
