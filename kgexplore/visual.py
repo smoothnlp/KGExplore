@@ -3,13 +3,13 @@ import math
 import numpy as np
 import pkg_resources
 import unicodedata
+from heapq import heappush, heappop
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as font_manager
 
 
 ## 设置字体
-font_dirs = ['simhei/']
-font_files = font_manager.findSystemFonts(fontpaths=font_dirs)
+font_files = [pkg_resources.resource_filename('kgexplore', 'resources/simhei/simhei.ttf')]
 font_list = font_manager.createFontList(font_files)
 font_manager.fontManager.ttflist.extend(font_list)
 plt.rcParams['font.family'] = "SimHei"
@@ -73,34 +73,59 @@ def to_marker_edge(marker_size, marker):
         return pow(2*marker_size,0.5)/2
     else:
         return pow(marker_size,0.5)/2
+
+   
+def shortest_path_length(G):
+    def _dijkstra(G, node):
+        """使用dijkstra算法计算 node 与 图中其它节点 之间的最短路径"""
+        G_succ = {k: list(G._adj[k].keys()) for k in G._adj.keys()}
+        for u,v in G.edges():
+            G_succ[v] += [u]  # 保存全部邻接关系
+        push = heappush
+        pop = heappop
+        dist = {}  # dictionary of final distances
+        seen = {}
+        fringe = []
+        if node not in G:
+            raise nx.NodeNotFound(f"Node {node} not in G")
+        seen[node] = 0
+        push(fringe, (0, node))
+        while fringe:
+            (d, v) = pop(fringe)
+            if v in dist:
+                continue  # already searched this node.
+            dist[v] = d
+            for u in G_succ[v]:
+                vu_dist = dist[v] + 1
+                if u in dist:
+                    if vu_dist < dist[u]:
+                        raise ValueError('Contradictory paths found:','negative weights?')
+                elif u not in seen or vu_dist < seen[u]:
+                    seen[u] = vu_dist
+                    push(fringe, (vu_dist, u))
+        return dist
+    return {n:_dijkstra(G, n) for n in G}
     
     
 def rel2graph(rels:list):
     """
     依据多条知识图谱N元组构建Networkx类型的有向图
     :param rels:
-    :return: nx.MultiGraph, dict
+    :return: nx.MultiDiGraph
     """
-    G = nx.MultiGraph()
-    edges_dic = {}
+    G = nx.MultiDiGraph()
     rels.sort(key=lambda x:x['edge_type'],reverse=True)  
     for rel in rels:
         rel['source'] = normalize(rel['source'])
         rel['target'] = normalize(rel['target'])
         G.add_node(rel['source'],type=rel['source_type'])
         G.add_node(rel['target'],type=rel['target_type'])
-        G.add_edges_from([(rel['source'],rel['target'],{'label':rel['edge'], 'type':rel['edge_type']})])
-        if (rel['source'],rel['target']) in edges_dic.keys():
-            edges_dic[(rel['source'],rel['target'])] += [(rel['source'],rel['target'],len(edges_dic[(rel['source'],rel['target'])]),rel['edge'], rel['edge_type'])]
-        elif (rel['target'],rel['source']) in edges_dic.keys():
-            edges_dic[(rel['target'],rel['source'])] += [(rel['source'],rel['target'],len(edges_dic[(rel['target'],rel['source'])]),rel['edge'], rel['edge_type'])]
-        else:
-            edges_dic[(rel['source'],rel['target'])] = [(rel['source'],rel['target'],0,rel['edge'], rel['edge_type'])]
-    return G, edges_dic
+        G.add_edges_from([(rel['source'],rel['target'],
+                           {'edge_attr':{'label':rel['edge'], 'type':rel['edge_type']}})])
+    return G
 
       
 def draw_graph(G,
-               edges_dic,
                width:int = 14,
                height:int = 14,
                node_label_size: int = 12,
@@ -108,14 +133,15 @@ def draw_graph(G,
                save_path=None):
     """
     用matplotlib对多重边有向图进行可视化
-    :param G: nx.MultiGraph
-    :param edges_dic: dict
+    :param G: nx.MultiDiGraph
     :param width, height: 窗口尺寸
     :return:
     """    
-    pos = nx.drawing.kamada_kawai_layout(G)
+    dists = shortest_path_length(G)
+    pos = nx.drawing.kamada_kawai_layout(G,dist=dists)
     node_labels = {k: label_modification(k) for k in G.nodes}
     nodesize = {k:min(len(k), 5) * 1500 for k in G.nodes}
+    edges = nx.get_edge_attributes(G,'edge_attr')
     
     ## 控制fig大小
     # if len(node_labels)>28:
@@ -139,37 +165,33 @@ def draw_graph(G,
                             font_family="SimHei")
 
     ax = plt.gca() ## get current axes
-    for k,v_lst in edges_dic.items():
-#         if set([v[3] for v in v_lst])==set(['注册商标']):  ## edge内容为“注册商标”时去重
-#             v_lst = v_lst[:1]
-        num_edge = len(v_lst)
-        for v in v_lst:
-            # middle control point of quadratic Bezier curve is located at the same distance
-            # from the start point C0(x1, y1) and end point C2(x2, y2) and the distance of
-            # the C1 to the line connecting C0-C2 is *rad* times the distance of C0-C2.
-            source, target, count, label, edge_type = v
-            (x1, y1) = pos[source]  # C0
-            (x2, y2) = pos[target]  # C2
-            rad = 0.4/num_edge*math.ceil(count/2)*(-1)**(count%2) 
-            x, y, trans_angle = _get_trans_angle(x1,x2,y1,y2,rad,ax)  # 计算 edge_label的坐标(x,y) 和 旋转角度trans_angle
-            shrink_target = to_marker_edge(nodesize[target], 'o')   # space from edge head to target
+    for (source,target,num_degree),attr in edges.items():
+        num_edge = G.degree(source)
+        # middle control point of quadratic Bezier curve is located at the same distance
+        # from the start point C0(x1, y1) and end point C2(x2, y2) and the distance of
+        # the C1 to the line connecting C0-C2 is *rad* times the distance of C0-C2.
+        (x1, y1) = pos[source]  # C0
+        (x2, y2) = pos[target]  # C2
+        rad = 0.4/num_edge*math.ceil(num_degree/2)*(-1)**(num_degree%2) 
+        x, y, trans_angle = _get_trans_angle(x1,x2,y1,y2,rad,ax)  # 计算 edge_label的坐标(x,y) 和 旋转角度trans_angle
+        shrink_target = to_marker_edge(nodesize[target], 'o')   # space from edge head to target
 
-            # edge
-            arrow = ax.annotate("",
-                        xy=(x2, y2), xycoords='data',        ##箭头指向
-                        xytext=(x1, y1), textcoords='data',  ##箭头尾部
-                        arrowprops=dict(arrowstyle="->", 
-                                    color=pattern_dic[edge_type], linewidth=2.5,
-                                    shrinkB=shrink_target, 
-                                    connectionstyle="arc3,rad={}".format(str(rad))))
-            arrow.set_zorder(0)  ##先画edge，再画node
+        # edge
+        arrow = ax.annotate("",
+                    xy=(x2, y2), xycoords='data',        ##箭头指向
+                    xytext=(x1, y1), textcoords='data',  ##箭头尾部
+                    arrowprops=dict(arrowstyle="->", 
+                                color=pattern_dic[attr['type']], linewidth=2.5,
+                                shrinkB=shrink_target, 
+                                connectionstyle="arc3,rad={}".format(str(rad))))
+        arrow.set_zorder(0)  ##先画edge，再画node
 
-            # edge label
-            t = ax.text(x, y,str(label),
-                        size=edge_label_size,color='black',family='SimHei',weight='normal',
-                        horizontalalignment='center',verticalalignment='center',
-                        rotation=trans_angle,transform=ax.transData,
-                        bbox=dict(boxstyle="round", fc="w", ec='0.9', alpha=0.9))
+        # edge label
+        t = ax.text(x, y,str(attr['label']),
+                    size=edge_label_size,color='black',family='SimHei',weight='normal',
+                    horizontalalignment='center',verticalalignment='center',
+                    rotation=trans_angle,transform=ax.transData,
+                    bbox=dict(boxstyle="round", fc="w", ec='0.9', alpha=0.9))
     for key, spine in ax.spines.items():  ## 删除边框
         spine.set_visible(False)
     if save_path:
@@ -200,16 +222,16 @@ def visualize(rels,
     ## 过滤 source 与 target 相同的情况
     rels = [rel for rel in rels if rel['target']!=rel['source']]
 
-    G, edges_dic = rel2graph(rels)
+    G = rel2graph(rels)
     if len(G)<=0:             ## 处理空的Graph
         return
     if len(G)>100:
         raise Exception("The input digraph is too large")
-    draw_graph(G,edges_dic,width,height,**kargs)
+    draw_graph(G,width,height,**kargs)
 
 #TODO:
 #1.同edge去重，如“商标”重复太多，展示效果不好；
 #2.使用nx.MultiGraph()得到的graph，无法正确记录edge的指向，
 #   nx.MultiDiGraph()可以正确记录edge的指向，但nx.drawing.kamada_kawai_layout(G)计算的pocision不对。
-#   (已解决，用edges_dic记录箭头指向)
+#   (已解决，nx.MultiDiGraph()+shortest_path_length()计算最短路径)
 ################################################################################################
