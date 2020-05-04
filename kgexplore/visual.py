@@ -5,6 +5,8 @@ import pkg_resources
 import unicodedata
 from heapq import heappush, heappop
 import matplotlib.pyplot as plt
+import matplotlib.lines as mlines
+import matplotlib.patches as mpatches
 import matplotlib.font_manager as font_manager
 
 
@@ -15,14 +17,16 @@ font_manager.fontManager.ttflist.extend(font_list)
 plt.rcParams['font.family'] = "SimHei"
 
 ## 设置颜色
-pattern_dic = {'企业':'powderblue','机构':'powderblue','投资方':'powderblue',  ## node-机构
-               '人物':'bisque',                                               ## node-人物
-               '品牌':'#9ffeb0','商标':'#9ffeb0',                             ## node-产品
+## 设置颜色
+pattern_dic = {'企业':'powderblue','投资方':'powderblue','机构':'#cadcf2', ## node-机构
+               '人物':'bisque',                                            ## node-人物
+               '品牌':'#d1f6d9','商标':'#d1f6d9',                          ## node-产品
+               '产品':'#ffffad','货品':'#e5e59b','地区':'#c9c9cb','公司与品牌':'#d6f0fa',
+               '修饰短语':'#dff7f2','其他':'#faebe3',                      ## search_bigram-node
                '融资':'steelblue','投资':'steelblue','股东':'steelblue',      ## edge-投融资
                '任职':'darksalmon',                                           ## edge-任职
                '企业品牌':'mediumseagreen','企业商标':'mediumseagreen',       ## edge-产品
-               'entity':'powderblue', 'phrase':'powderblue',                               ## search_bigram-node
-               '事件触发':'steelblue', '状态描述':'darksalmon', '属性描述':'mediumseagreen'} ## search_bigram-edge
+               '事件触发':'#bc8f8f', '状态描述':'#7ba7cc', '属性描述':'#62c28d'}## search_bigram-edge
 
 normalize = lambda x: unicodedata.normalize('NFKC', x)  ## 中文标点转英文标点，全角字符转半角字符
 
@@ -166,7 +170,7 @@ def draw_graph(G,
 
     ax = plt.gca() ## get current axes
     for (source,target,num_degree),attr in edges.items():
-        num_edge = G.degree(source)
+        num_edge = len(G[source][target])
         # middle control point of quadratic Bezier curve is located at the same distance
         # from the start point C0(x1, y1) and end point C2(x2, y2) and the distance of
         # the C1 to the line connecting C0-C2 is *rad* times the distance of C0-C2.
@@ -192,10 +196,23 @@ def draw_graph(G,
                     horizontalalignment='center',verticalalignment='center',
                     rotation=trans_angle,transform=ax.transData,
                     bbox=dict(boxstyle="round", fc="w", ec='0.9', alpha=0.9))
+    ## legend
+    handles_node = [mpatches.Patch(color=pattern_dic[t], label=t) 
+                      for t in set(nx.get_node_attributes(G, "type").values())]
+    handles_edge = [mlines.Line2D([],[],color=pattern_dic[t],label=t,linewidth=2.5)
+                      for t in set([d['type'] for d in edges.values()])]
+    legend1 = plt.legend(handles=handles_node, fontsize=12, framealpha=0.2,title='node',
+                         bbox_to_anchor=(0.95, 1.05),bbox_transform=plt.gcf().transFigure)
+    legend1.get_title().set_fontsize(fontsize = 14)  # 设置legend title字号
+    ax.add_artist(legend1)  ## 使用双legend
+    legend2 = plt.legend(handles=handles_edge, fontsize=12, framealpha=0.2,title='edge',
+                         bbox_to_anchor=(1.05, 1.05),bbox_transform=plt.gcf().transFigure)
+    legend2.get_title().set_fontsize(fontsize = 14)  # 设置legend title字号
+    
     for key, spine in ax.spines.items():  ## 删除边框
         spine.set_visible(False)
     if save_path:
-        plt.savefig(save_path,dpi=fig.dpi)
+        plt.savefig(save_path,dpi=fig.dpi,bbox_inches='tight')
     plt.show()
     return 
 
@@ -211,13 +228,6 @@ def visualize(rels,
     """
     if not isinstance(rels,list):
         raise ValueError("Invalid input type of "+str(type(rels)))
-
-    ## This logic will deprecate
-    for rel in rels:
-        if "source_type" not in rel:
-            rel["source_type"] = rel.pop("source_flag")
-        if "target_type" not in rel:
-            rel['target_type'] = rel.pop("target_flag")
 
     ## 过滤 source 与 target 相同的情况
     rels = [rel for rel in rels if rel['target']!=rel['source']]
