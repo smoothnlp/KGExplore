@@ -22,11 +22,21 @@ pattern_dic = {'企业':'powderblue','投资方':'powderblue','机构':'#cadcf2'
                '人物':'bisque',                                            ## node-人物
                '品牌':'#d1f6d9','商标':'#d1f6d9',                          ## node-产品
                '产品':'#ffffad','货品':'#e5e59b','地区':'#c9c9cb','公司与品牌':'#d6f0fa',
-               '修饰短语':'#dff7f2','其他':'#faebe3',                      ## search_bigram-node
+               '修饰短语':'#dff7f2',
+                '修饰性名词短语':'#dff7f2',
+               '其他':'#faebe3',                      ## search_bigram-node
                '融资':'steelblue','投资':'steelblue','股东':'steelblue',      ## edge-投融资
                '任职':'darksalmon',                                           ## edge-任职
                '企业品牌':'mediumseagreen','企业商标':'mediumseagreen',       ## edge-产品
                '事件触发':'#bc8f8f', '状态描述':'#7ba7cc', '属性描述':'#62c28d'}## search_bigram-edge
+
+default_color = '#faebe3'
+
+def determine_color(node_type):
+    if node_type in pattern_dic:
+        return pattern_dic[node_type]
+    else:
+        return default_color
 
 normalize = lambda x: unicodedata.normalize('NFKC', x)  ## 中文标点转英文标点，全角字符转半角字符
 
@@ -159,7 +169,7 @@ def draw_graph(G,
     ax = fig.add_axes([0.03, 0.03, 0.94, 0.94]) ## axes的左下角在fig的图像坐标上的位置 + axes在fig的图像坐标上x、y方向的长度
     ## draw nodes
     nx.draw_networkx_nodes(G, pos, 
-                       node_color=[pattern_dic[t] for t in nx.get_node_attributes(G, "type").values()], 
+                       node_color=[determine_color(t) for t in nx.get_node_attributes(G, "type").values()],
                        node_size=list(nodesize.values()),
                        alpha = 1)
     nx.draw_networkx_labels(G,pos,
@@ -185,7 +195,7 @@ def draw_graph(G,
                     xy=(x2, y2), xycoords='data',        ##箭头指向
                     xytext=(x1, y1), textcoords='data',  ##箭头尾部
                     arrowprops=dict(arrowstyle="->", 
-                                color=pattern_dic[attr['type']], linewidth=2.5,
+                                color=determine_color(attr['type']), linewidth=2.5,
                                 shrinkB=shrink_target, 
                                 connectionstyle="arc3,rad={}".format(str(rad))))
         arrow.set_zorder(0)  ##先画edge，再画node
@@ -197,9 +207,9 @@ def draw_graph(G,
                     rotation=trans_angle,transform=ax.transData,
                     bbox=dict(boxstyle="round", fc="w", ec='0.9', alpha=0.9))
     ## legend
-    handles_node = [mpatches.Patch(color=pattern_dic[t], label=t) 
+    handles_node = [mpatches.Patch(color=determine_color(t), label=t)
                       for t in set(nx.get_node_attributes(G, "type").values())]
-    handles_edge = [mlines.Line2D([],[],color=pattern_dic[t],label=t,linewidth=2.5)
+    handles_edge = [mlines.Line2D([],[],color=determine_color(t),label=t,linewidth=2.5)
                       for t in set([d['type'] for d in edges.values()])]
     legend1 = plt.legend(handles=handles_node, fontsize=12, framealpha=0.2,title='node',
                          bbox_to_anchor=(0.95, 1.05),bbox_transform=plt.gcf().transFigure)
