@@ -151,8 +151,11 @@ def draw_graph(G,
     :param width, height: 窗口尺寸
     :return:
     """    
-    dists = shortest_path_length(G)
-    pos = nx.drawing.kamada_kawai_layout(G,dist=dists)
+    if len(G)==2:
+        pos = nx.drawing.planar_layout(G)
+    else:
+        dists = shortest_path_length(G)
+        pos = nx.drawing.kamada_kawai_layout(G,dist=dists)
     node_labels = {k: label_modification(k) for k in G.nodes}
     nodesize = {k:min(len(k), 5) * 1500 for k in G.nodes}
     edges = nx.get_edge_attributes(G,'edge_attr')
