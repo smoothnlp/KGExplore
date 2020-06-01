@@ -4,7 +4,7 @@
 
 ## Vision
 > WE ARE DOING IT! FOR REAL! 我们是真的在做! 这是我们眼中的知识图谱现状: 
->  - every body talks about it: 欢迎了解一下各家科技公司的宣传稿, 
+>  - every body talks about it: 欢迎了解一下各家科技公司的技术宣传稿 :)
 >  - nobody really knows how to do it: 别说do it, 什么是知识图谱, 每行每业的定义都不尽相同. 至于怎么做?做什么?, 以后再说; PPT先画, 牛X先吹. 
 >  - everyone thinks everyone else is doing it, so everyone claims they are doing it: 这年头, ppt上没提到"知识图谱"概念的, 都不好意思说自己是AI公司.
 
