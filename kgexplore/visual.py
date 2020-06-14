@@ -166,7 +166,8 @@ def draw_graph(G,
 
     fig = plt.figure(figsize = (width, height),dpi=60)
     ## 添加水印
-    wm_img = plt.imread(pkg_resources.resource_filename('kgexplore', 'resources/')+'watermark.png')
+    #wm_img = plt.imread(pkg_resources.resource_filename('kgexplore', 'resources/')+'watermark.png')
+    wm_img = plt.imread(pkg_resources.resource_filename('kgexplore', 'resources/watermark.png'))
     fig.figimage(wm_img,alpha=0.15)
     ## 获得绘制的句柄
     ax = fig.add_axes([0.03, 0.03, 0.94, 0.94]) ## axes的左下角在fig的图像坐标上的位置 + axes在fig的图像坐标上x、y方向的长度

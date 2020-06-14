@@ -14,7 +14,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/smoothnlp/kgexplore",
     packages=setuptools.find_packages(),
-    package_data={'kgexplore': ['resources/*']},
+    package_data={'kgexplore': ['resources/simhei/*',"resources/*"]},
     install_requires=[
         'request',
       ],
