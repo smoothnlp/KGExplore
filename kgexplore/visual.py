@@ -28,7 +28,9 @@ pattern_dic = {'企业':'powderblue','投资方':'powderblue','机构':'#cadcf2'
                '融资':'steelblue','投资':'steelblue','股东':'steelblue',      ## edge-投融资
                '任职':'darksalmon',                                           ## edge-任职
                '企业品牌':'mediumseagreen','企业商标':'mediumseagreen',       ## edge-产品
-               '事件触发':'#bc8f8f', '状态描述':'#7ba7cc', '属性描述':'#62c28d'}## search_bigram-edge
+               '事件触发':'#bc8f8f', '状态描述':'#7ba7cc',
+               "数值描述":"#3291a8",
+               '属性描述':'#62c28d'}## search_bigram-edge
 
 default_color = '#faebe3'
 
