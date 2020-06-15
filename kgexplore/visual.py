@@ -172,7 +172,7 @@ def draw_graph(G,
     wm_img = plt.imread(pkg_resources.resource_filename('kgexplore', 'resources/watermark.png'))
     fig.figimage(wm_img,alpha=0.15)
     ## 获得绘制的句柄
-    ax = fig.add_axes([0.03, 0.03, 0.94, 0.94]) ## axes的左下角在fig的图像坐标上的位置 + axes在fig的图像坐标上x、y方向的长度
+    ax = fig.add_axes([0.1, 0.1, 0.9, 0.9]) ## axes的左下角在fig的图像坐标上的位置 + axes在fig的图像坐标上x、y方向的长度
     ## draw nodes
     nx.draw_networkx_nodes(G, pos, 
                        node_color=[determine_color(t) for t in nx.get_node_attributes(G, "type").values()],
