@@ -6,7 +6,7 @@ long_description = open(os.path.join(rootdir, 'README.md'),encoding="utf-8").rea
 
 setuptools.setup(
     name="kgexplore",
-    version="0.1.1",
+    version="0.1.2",
     author="SmoothNLP Organization",
     author_email="contact@smoothnlp.com",
     description="Python Package for Knowledge Exploration",
