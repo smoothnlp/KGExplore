@@ -81,3 +81,42 @@ def search_bigram(text,  ## 长度不超过80
     else:
         raise ValueError("Search for Bigram Failed")
 
+
+def search_ngram_cf(text:str,
+                    limit:int = 6,
+                    path: str = "/pro/ngram/searchNgramCF"):
+    response = _request_single(path=path,
+                               params={"text": text,
+                                       "limit": limit})
+    if isinstance(response, dict) and "response" in response:
+        return response["response"]
+    else:
+        raise ValueError("Search for Bigram Failed")
+
+def extend_node(nodeText: str,
+                nodeType: str = "",
+                nodeID: str = "",
+                path:str = "/pro/ngram/extendNode"):
+    response = _request_single(path=path,
+                               params={"nodeText": nodeText,
+                                       "nodeType": nodeType,
+                                       "nodeID":nodeID,
+                                       "limit": 6})
+    if isinstance(response, dict) and "response" in response:
+        return response["response"]
+    else:
+        raise ValueError("Search for Bigram Failed")
+
+
+def search_ngram_node(nodeText: str,
+                      limit: int = 6,
+                      path: str = "/pro/ngram/searchNgramNode"):
+    response = _request_single(path=path,
+                              params={"nodeText": nodeText,
+                                      "limit": limit})
+    if isinstance(response, dict) and "response" in response:
+        return response["response"]
+    else:
+        raise ValueError("Search for Bigram Failed")
+
+

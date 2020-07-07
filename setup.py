@@ -18,7 +18,7 @@ setuptools.setup(
     install_requires=[
         'request',
       ],
-    keywords=["Knowledge Graph","Business"],
+    keywords=["Knowledge Graph"],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
