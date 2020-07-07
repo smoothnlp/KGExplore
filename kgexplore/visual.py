@@ -21,7 +21,7 @@ plt.rcParams['font.family'] = "SimHei"
 pattern_dic = {'企业':'powderblue','投资方':'powderblue','机构':'#cadcf2', ## node-机构
                '人物':'bisque',                                            ## node-人物
                '品牌':'#d1f6d9','商标':'#d1f6d9',                          ## node-产品
-               '产品':'#ffffad','货品':'#e5e59b','地区':'#c9c9cb','公司与品牌':'#d6f0fa',
+               '产品':'#b8e4ff','货品':'#e5e59b','地区':'#c9c9cb','公司与品牌':'#d6f0fa',
                '修饰短语':'#dff7f2',
                 '修饰性名词短语':'#dff7f2',
                '其他':'#faebe3',                      ## search_bigram-node
