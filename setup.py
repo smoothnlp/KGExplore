@@ -17,7 +17,8 @@ setuptools.setup(
     package_data={'kgexplore': ['resources/simhei/*',"resources/*"]},
     install_requires=[
         'request',
-        'fa2l==0.2'
+        'fa2l==0.2',
+        "matplotlib==2.2.5"
       ],
     keywords=["Knowledge Graph"],
     classifiers=[

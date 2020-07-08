@@ -179,8 +179,8 @@ def draw_graph(G,
     # else:
     #     dists = shortest_path_length(G)
     #     pos = nx.drawing.kamada_kawai_layout(G,dist=dists)
-    node_labels = {k: label_modification(k) for k in G.nodes}
-    nodesize = {k:min(len(k), 5) * 1500 for k in G.nodes}
+    node_labels = {k: label_modification(k) for k in G.nodes()}
+    nodesize = {k:min(len(k), 5) * 1500 for k in G.nodes()}
     edges = nx.get_edge_attributes(G,'edge_attr')
     
     ## 控制fig大小
@@ -206,7 +206,7 @@ def draw_graph(G,
                             font_family="SimHei")
 
     ax = plt.gca() ## get current axes
-    for (source,target,num_degree),attr in edges.items():
+    for (source,target),attr in edges.items():
         num_degree = 0  ## 不考虑多条边curve的情况
         num_edge = len(G[source][target])
         # middle control point of quadratic Bezier curve is located at the same distance
