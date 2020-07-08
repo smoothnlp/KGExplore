@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
 import matplotlib.patches as mpatches
 import matplotlib.font_manager as font_manager
+from fa2l import force_atlas2_layout
 
 
 ## 设置字体
@@ -129,7 +130,7 @@ def rel2graph(rels:list):
     :param rels:
     :return: nx.MultiDiGraph
     """
-    G = nx.MultiDiGraph()
+    G = nx.Graph()
     rels.sort(key=lambda x:x['edge_type'],reverse=True)  
     for rel in rels:
         rel['source'] = normalize(rel['source'])
@@ -152,12 +153,32 @@ def draw_graph(G,
     :param G: nx.MultiDiGraph
     :param width, height: 窗口尺寸
     :return:
-    """    
-    if len(G)==2:
-        pos = nx.drawing.planar_layout(G)
-    else:
-        dists = shortest_path_length(G)
-        pos = nx.drawing.kamada_kawai_layout(G,dist=dists)
+    """
+    ## 使用 fa2l 中的方法
+    ## 算法参考: https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0098679
+    pos = force_atlas2_layout(G,
+                              iterations=100,
+                              pos_list=None,
+                              node_masses=None,
+                              outbound_attraction_distribution=False,
+                              lin_log_mode=True,
+                              prevent_overlapping=False,
+                              edge_weight_influence=1.0,
+
+                              jitter_tolerance=0.3,
+                              barnes_hut_optimize=True,
+                              barnes_hut_theta=0.1,
+
+                              scaling_ratio=2.0,
+                              strong_gravity_mode=True,
+                              multithread=False,
+                              gravity=1.0)
+
+    # if len(G)==2:
+    #     pos = nx.drawing.planar_layout(G)
+    # else:
+    #     dists = shortest_path_length(G)
+    #     pos = nx.drawing.kamada_kawai_layout(G,dist=dists)
     node_labels = {k: label_modification(k) for k in G.nodes}
     nodesize = {k:min(len(k), 5) * 1500 for k in G.nodes}
     edges = nx.get_edge_attributes(G,'edge_attr')
@@ -186,6 +207,7 @@ def draw_graph(G,
 
     ax = plt.gca() ## get current axes
     for (source,target,num_degree),attr in edges.items():
+        num_degree = 0  ## 不考虑多条边curve的情况
         num_edge = len(G[source][target])
         # middle control point of quadratic Bezier curve is located at the same distance
         # from the start point C0(x1, y1) and end point C2(x2, y2) and the distance of
