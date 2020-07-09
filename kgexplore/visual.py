@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
 import matplotlib.patches as mpatches
 import matplotlib.font_manager as font_manager
-from fa2l import force_atlas2_layout
+from .fa2l import force_atlas2_layout
 
 
 ## 设置字体
